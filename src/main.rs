@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, io::stdin, num::ParseIntError};
 
 struct TicTacToe {
     state: Vec<u8>,
@@ -47,21 +47,56 @@ impl TicTacToe {
 }
 
 fn main() {
-    let ttt = TicTacToe {
-        state: vec![0, 0, 1, 0, 1, 0, 1, 0, 0],
-    };
-
-    verify_win_condition(&ttt.state, 1);
-
-    println!("{}", ttt);
-}
-
-fn init_ttt() -> TicTacToe {
-    todo!()
+    game()
 }
 
 fn game() {
-    todo!()
+    let mut ttt = TicTacToe::default();
+    println!("Welcome to TicTacToe");
+    println!("{}", &ttt);
+    
+    let mut current_player = 1;
+    loop {
+        println!("Your move {}: (1,9) ", current_player);
+        let mut input_buffer = String::new();
+        stdin().read_line(&mut input_buffer).expect("Failed to Read Line");
+
+        let player_move: Result<usize, ParseIntError> = input_buffer.trim().parse();
+        if player_move.is_err() {
+            println!("Input is not an integer");
+            continue;
+        }
+
+        let player_move = player_move.unwrap();
+
+        match player_move  {
+            1..10 => {},
+            _ => {
+                println!("Input is not between 1-9");
+                continue;
+            }
+        }
+
+        if ttt.state[player_move - 1] != 0 {
+            println!("This location is occupied");
+            continue;
+        }
+
+        ttt.state[player_move - 1] = current_player;
+
+        println!("{}", ttt);
+
+        if verify_win_condition(&ttt.state, current_player).is_some() {
+            break;
+        }
+
+        if current_player == 1 {
+            current_player = 2;
+        } else {
+            current_player = 1;
+        }
+
+    } 
 }
 
 // Win Conditions for a 3x3 Grid
@@ -78,12 +113,12 @@ fn game() {
 // 1 0 0 0 - 0 1 0 0 - 0 0 1 0 - 0 0 0 1
 // 0 0 1 0 1 0 1 0 0 Diagonal Upward
 // 0 0 0 1 - 0 0 1 0 - 0 1 0 0 - 1 0 0 0
-fn verify_win_condition(game: &Vec<u8>, player: u8) {
+fn verify_win_condition(game: &Vec<u8>, player: u8) -> Option<u8> {
     // The TicTacToe grid is represented as an array of N length.
     // If the square root of N is an integer we have a valid grid.
     // Here I refer to it as the Grid Root.
     let grid_root = game.len().isqrt();
-    assert_eq!(grid_root^2, game.len());
+    assert_eq!(grid_root * grid_root, game.len());
 
     // In the TicTacToe grid Players are represented as the values
     // 1 and 2, to simplify the algorithm, I check one player at a time.
@@ -109,6 +144,7 @@ fn verify_win_condition(game: &Vec<u8>, player: u8) {
         let max: usize = (i + 1) * grid_root;
         if mask[min..max] == win_state {
             println!("You win Horizontal");
+            return Some(player);
         }
 
         // This one liner gets me each column to check if it meets the win
@@ -116,6 +152,7 @@ fn verify_win_condition(game: &Vec<u8>, player: u8) {
         let v_mask: Vec<_> = mask.iter().skip(i).step_by(grid_root).copied().collect();
         if v_mask == win_state {
             println!("You win Vertical");
+            return Some(player);
         }
 
         d_mask_down[i] = mask[i * (grid_root + 1)];
@@ -124,5 +161,13 @@ fn verify_win_condition(game: &Vec<u8>, player: u8) {
 
     if d_mask_down == win_state || d_mask_up == win_state {
         println!("You win Diagonal");
+        return Some(player);
     }
+
+    if !game.contains(&0) {
+        println!("Tie!");
+        return Some(3);
+    }
+
+    return None
 }
