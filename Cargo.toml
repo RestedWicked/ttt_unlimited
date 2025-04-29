@@ -3,4 +3,8 @@ name = "ttt_unlimited"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "ttt_lib"
+path = "src/lib.rs"
+
 [dependencies]
