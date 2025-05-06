@@ -29,7 +29,7 @@ impl TicTacToe {
     pub fn col(&self, c: usize) -> Vec<u8> {
         let mut val: Vec<u8> = Vec::new();
         for i in 0..self.grid_root {
-            val.push(self[(i, c)]);
+            val.push(self[(c, i)]);
         }
         val
     }
