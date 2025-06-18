@@ -1,12 +1,23 @@
 use std::{io::stdin, num::ParseIntError};
 
+use bevy::prelude::*;
 use ttt_lib::TicTacToe;
 
+#[derive(Component)]
+struct Grid(Vec<u8>);
+
+#[derive(Component)]
+struct GridRoot(usize);
+
+
 fn main() {
-    game()
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .run();
+    //game()
 }
 
-fn game() {
+fn ttt_game_old() {
     let mut ttt = TicTacToe::default();
     println!("Welcome to TicTacToe");
     println!("{}", &ttt);
